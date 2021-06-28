@@ -5,9 +5,13 @@
 '''
 NOTE: This requires the latest beta of Pythonista 1.6 (build 160022)
 
-Demo of using Pythonista's own internals to implement an editor view with syntax highlighting (basically the exact same view Pythonista uses itself)
+Demo of using Pythonista's own internals to implement an editor view with
+syntax highlighting (basically the exact same view Pythonista uses itself)
 
-IMPORTANT: This is just for fun -- I was curious if it would work at all, but I don't recommend that you rely on this for anything important. The way Pythonista's internals work can change at any time, and this code is *very* likely to break in the future.
+IMPORTANT: This is just for fun -- I was curious if it would work at all,
+but I don't recommend that you rely on this for anything important.
+The way Pythonista's internals work can change at any time,
+and this code is *very* likely to break in the future.
 '''
 
 import ui
