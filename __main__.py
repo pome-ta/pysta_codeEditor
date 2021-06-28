@@ -136,7 +136,7 @@ def copy_action(sender):
 
 def main():
   global editor_view
-  editor_view = CodeEditorView('python', ext_kb=True, frame=(0, 0, 500, 500))
+  editor_view = CodeEditorView('markdown', ext_kb=True, frame=(0, 0, 500, 500))
   editor_view.name = 'Code Editor Demo'
   copy_btn = ui.ButtonItem('Copy', action=copy_action)
   editor_view.right_button_items = [copy_btn]
