@@ -1,6 +1,7 @@
 # https://gist.github.com/omz/6762c1e55e8c3a596637
 
 # coding: utf-8
+#!python2
 '''
 NOTE: This requires the latest beta of Pythonista 1.6 (build 160022)
 
