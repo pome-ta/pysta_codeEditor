@@ -9,7 +9,7 @@
 
 ## ロードマップ | todo
 
-- [] python3 対応
-- [] custom KeyboardAccessory
-- [] auto complete
+- [ ] python3 対応
+- [ ] custom KeyboardAccessory
+- [ ] auto complete
 
