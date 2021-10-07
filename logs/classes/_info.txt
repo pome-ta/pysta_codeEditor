@@ -1,0 +1,6 @@
+**System Information**
+
+> 2021/10/07
+
+* Pythonista 3.3 (330025), Default interpreter 3.6.1
+* iOS 15.0, model iPhone12,1, resolution (portrait) 828.0 x 1792.0 @ 2.0
