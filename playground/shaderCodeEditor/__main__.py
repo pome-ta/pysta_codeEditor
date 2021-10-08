@@ -68,11 +68,11 @@ void main(){
 
 class ShaderScene(scene.Scene):
   def setup(self):
-    node = scene.Node(self.size / 2)
+    self._node = scene.Node(self.size / 2)
     self.background_color = '#708090'
-    self.add_child(node)
-    sp_node = scene.ShapeNode(parent=node)
-    x_line = scene.ShapeNode(parent=node)
+    self.add_child(self._node)
+    self.sp_node = scene.ShapeNode(parent=self._node)
+    x_line = scene.ShapeNode(parent=self._node)
     x_path = ui.Path()
     x_path.move_to(0.0, self.size.y)
     x_path.line_to(self.size.x, self.size.y)
@@ -80,7 +80,7 @@ class ShaderScene(scene.Scene):
     x_line.stroke_color = 'maroon'
     
 
-    y_line = scene.ShapeNode(parent=node)
+    y_line = scene.ShapeNode(parent=self._node)
     y_path = ui.Path()
     y_path.move_to(self.size.x, 0.0)
     y_path.line_to(self.size.x, self.size.y)
@@ -88,14 +88,14 @@ class ShaderScene(scene.Scene):
     y_line.stroke_color = 'maroon'
     
     '''
-    cross_x_line = scene.ShapeNode(parent=node)
+    cross_x_line = scene.ShapeNode(parent=self._node)
     cross_x_path = ui.Path()
     cross_x_path.move_to(0.0, self.size.y)
     cross_x_path.line_to(self.size.x, 0.0)
     cross_x_line.path = cross_x_path
     cross_x_line.stroke_color = 'darkslategray'
     
-    cross_y_line = scene.ShapeNode(parent=node)
+    cross_y_line = scene.ShapeNode(parent=self._node)
     cross_y_path = ui.Path()
     cross_y_path.move_to(0.0, 0.0)
     cross_y_path.line_to(self.size.x, self.size.y)
@@ -103,26 +103,30 @@ class ShaderScene(scene.Scene):
     cross_y_line.stroke_color = 'darkslategray'
     '''
     
-
     self.shdr = scene.SpriteNode(parent=self)
     #self.shdr.texture = img
     _x = self.size.x * .88
     _y = self.size.y * .64
-    self.shdr.size = (_x, _x)
+    self.shdr.size = (_x, _y)
     #shdr.size=self.size
     self.shdr.shader = scene.Shader(src)
     self.shdr.shader.set_uniform('u_resolution', (_x, _x))
     # todo: Initial position before touching
     self.shdr.shader.set_uniform('u_offset', (0.5, 0.5))
 
-    sp_node.size = self.shdr.size
-    sp_node.color = 'darkslategray'
+    self.sp_node.size = self.shdr.size
+    self.sp_node.color = 'darkslategray'
     #sp_node.color = 'skyblue'
     self.did_change_size()
 
   def did_change_size(self):
     # todo: Center the image
+    self._node.position = self.size / 2
     self.shdr.position = self.size / 2
+    _x = self.size.x * .88
+    _y = self.size.y * .64
+    self.shdr.size = (_x, _y)
+    self.sp_node.size = self.shdr.size
 
   def touch_began(self, touch):
     self.set_uniform_touch(touch)
