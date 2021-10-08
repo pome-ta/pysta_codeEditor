@@ -3,7 +3,6 @@ from pathlib import Path
 import scene
 import ui
 
-
 src = '''
 precision highp float;
 
@@ -42,7 +41,6 @@ void main(){
   vec2 uv = v_tex_coord;
   //uv = (uv - vec2(0.5)) * 2.0;
   
-  
   vec2 p = abs((uv- vec2(0.5)) / 0.5);
   float l = 1.0 - length(p);
   
@@ -54,7 +52,6 @@ void main(){
   float o = n + m;
   
   vec2 mix = rotate(uv, vec2(0.5), o);
-  
   
   //mix = mix / 2.0 + vec2(0.5);
   uv = uv / 2.0 + vec2(0.5);
@@ -68,88 +65,24 @@ void main(){
 
 class ShaderScene(scene.Scene):
   def setup(self):
-    self._node = scene.Node(self.size / 2)
-    self.background_color = '#708090'
-    self.add_child(self._node)
-    self.sp_node = scene.ShapeNode(parent=self._node)
-    x_line = scene.ShapeNode(parent=self._node)
-    x_path = ui.Path()
-    x_path.move_to(0.0, self.size.y)
-    x_path.line_to(self.size.x, self.size.y)
-    x_line.path = x_path
-    x_line.stroke_color = 'maroon'
-    
 
-    y_line = scene.ShapeNode(parent=self._node)
-    y_path = ui.Path()
-    y_path.move_to(self.size.x, 0.0)
-    y_path.line_to(self.size.x, self.size.y)
-    y_line.path = y_path
-    y_line.stroke_color = 'maroon'
-    
-    '''
-    cross_x_line = scene.ShapeNode(parent=self._node)
-    cross_x_path = ui.Path()
-    cross_x_path.move_to(0.0, self.size.y)
-    cross_x_path.line_to(self.size.x, 0.0)
-    cross_x_line.path = cross_x_path
-    cross_x_line.stroke_color = 'darkslategray'
-    
-    cross_y_line = scene.ShapeNode(parent=self._node)
-    cross_y_path = ui.Path()
-    cross_y_path.move_to(0.0, 0.0)
-    cross_y_path.line_to(self.size.x, self.size.y)
-    cross_y_line.path = cross_y_path
-    cross_y_line.stroke_color = 'darkslategray'
-    '''
-    
     self.shdr = scene.SpriteNode(parent=self)
     #self.shdr.texture = img
     _x = self.size.x * .88
     _y = self.size.y * .64
-    self.shdr.size = (_x, _y)
+    self.shdr.size = (_x, _x)
     #shdr.size=self.size
     self.shdr.shader = scene.Shader(src)
     self.shdr.shader.set_uniform('u_resolution', (_x, _x))
     # todo: Initial position before touching
     self.shdr.shader.set_uniform('u_offset', (0.5, 0.5))
 
-    self.sp_node.size = self.shdr.size
-    self.sp_node.color = 'darkslategray'
-    #sp_node.color = 'skyblue'
-    self.did_change_size()
-
   def did_change_size(self):
     # todo: Center the image
-    self._node.position = self.size / 2
     self.shdr.position = self.size / 2
     _x = self.size.x * .88
     _y = self.size.y * .64
-    self.shdr.size = (_x, _y)
-    self.sp_node.size = self.shdr.size
-
-  def touch_began(self, touch):
-    self.set_uniform_touch(touch)
-
-  def touch_moved(self, touch):
-    self.set_uniform_touch(touch)
-
-  def set_uniform_touch(self, touch):
-    dx, dy = (self.shdr.position - touch.location)
-    dx /= self.shdr.size[0]
-    dy /= self.shdr.size[1]
-    self.shdr.shader.set_uniform('u_offset', (dx, dy))
-    
-    '''
-    if touch.location in self.shdr.frame:
-      #local_touch = touch.location - self.shdr.frame
-      #dx = local_touch[0]# / self.shdr.size[0]
-      #dy = local_touch[1]# / self.shdr.size[1]
-      dx, dy = self.shdr.position - touch.location
-      dx /= self.shdr.size[0]
-      dy /= self.shdr.size[1]
-      self.shdr.shader.set_uniform('u_offset', (dx, dy))
-    '''
+    self.shdr.size = (_x, _x)
 
 
 class MainView(ui.View):
@@ -158,23 +91,22 @@ class MainView(ui.View):
     #interval = 60
     #self.update_interval = 1 / interval
     self.bg_color = 'maroon'
-    
+
     self.shader_scene = ShaderScene()
     self.ui_scene = scene.SceneView()
     self.ui_scene.shows_fps = True
     self.ui_scene.frame_interval = 2  # 30fps
     self.ui_scene.scene = self.shader_scene
-    
+
     self.add_subview(self.ui_scene)
-    
+
   def layout(self):
     self.ui_scene.width = self.width
     self.ui_scene.height = self.height
     self.shader_scene.did_change_size()
-    
-
 
 
 if __name__ == '__main__':
   view = MainView()
   view.present(style='fullscreen', orientations=['portrait'])
+
