@@ -3,8 +3,6 @@ from pathlib import Path
 import scene
 import ui
 
-#src = editor.get_text()
-img = None  #scene.Texture('_UVCheckerMap01-512.png')
 
 src = '''
 precision highp float;
@@ -68,7 +66,7 @@ void main(){
 '''
 
 
-class MyScene(scene.Scene):
+class ShaderScene(scene.Scene):
   def setup(self):
     node = scene.Node(self.size / 2)
     self.background_color = '#708090'
@@ -81,7 +79,6 @@ class MyScene(scene.Scene):
     x_line.path = x_path
     x_line.stroke_color = 'maroon'
     
-    print(self.size.y)
 
     y_line = scene.ShapeNode(parent=node)
     y_path = ui.Path()
@@ -149,33 +146,31 @@ class MyScene(scene.Scene):
       dy /= self.shdr.size[1]
       self.shdr.shader.set_uniform('u_offset', (dx, dy))
     '''
-    
-
-
-#main = MyScene()
-#scene.run(main, show_fps=True, frame_interval=0)
-
 
 
 class MainView(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
-    interval = 60
-    self.update_interval = 1 / interval
+    #interval = 60
+    #self.update_interval = 1 / interval
     self.bg_color = 'maroon'
     
-    self.shader_scene = MyScene()
-    sh = scene.SceneView()
-    sh.scene = self.shader_scene
-    sh.flex='WH'
-    #print(shader_scene)
-    #self.shader_scene.flex = 'WH'
+    self.shader_scene = ShaderScene()
+    self.ui_scene = scene.SceneView()
+    self.ui_scene.shows_fps = True
+    self.ui_scene.frame_interval = 2  # 30fps
+    self.ui_scene.scene = self.shader_scene
     
-    self.add_subview(sh)
+    self.add_subview(self.ui_scene)
+    
+  def layout(self):
+    self.ui_scene.width = self.width
+    self.ui_scene.height = self.height
+    self.shader_scene.did_change_size()
     
 
 
 
 if __name__ == '__main__':
   view = MainView()
-  view.present()
+  view.present(style='fullscreen', orientations=['portrait'])
