@@ -77,8 +77,8 @@ class CodeEditorView:
     flex_width, flex_height = (1 << 1), (1 << 4)
     self.editor_view.setAutoresizingMask_(flex_width | flex_height)
     #margins = UIEdgeInsets(16, 10, 16, 10)
-    margins = UIEdgeInsets(4, 8, 4, 8)
-    self.editor_view.setMarginsForPortrait_landscape_(margins, margins)
+    #margins = UIEdgeInsets(4, 8, 8, 8)
+    #self.editor_view.setMarginsForPortrait_landscape_(margins, margins)
     if ext_kb:
       kb_types = {
         'python': 'KeyboardAccessoryTypePythonCompact',
@@ -95,9 +95,6 @@ class CodeEditorView:
     #self.editor_view.setOpaque_(0)
     self.editor_view.setBackgroundColor_((0.0, 0.0, 0.0, 0.0))
     
-    
-    
-  
   
   @property
   #@on_main_thread
@@ -113,13 +110,15 @@ class CodeEditorView:
       raise TypeError('expected string/unicode')
     text_view = self.editor_view.textView()
     text_view.setText_(new_text)
-    text_view.setOpaque_(0)
-    col = ObjCClass('UIColor').colorWithRed_green_blue_alpha_(0.0, 0.0, 0.0, 0.5)
-    text_view.setBackgroundColor_(col)
-    #pdbg.state(col)
-    #pdbg.state(text_view)
-    #UIColor
-    #setBackgroundColor_
+    #text_view.setOpaque_(0)
+    col = ObjCClass('UIColor').colorWithRed_green_blue_alpha_(0.0, 0.0, 0.0, 0.1)
+    
+    subviews = text_view.subviews()
+    for subs in subviews:
+      if 'OMTextContentView' in str(subs):
+        frames = subs.subviews()
+        for frame in frames:
+          frame.setBackgroundColor_(col)
     
 
   #@on_main_thread
@@ -163,8 +162,6 @@ class CodeEditorView:
     print('end_editing')
 
   
-  
-  
 class MainView(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
@@ -189,10 +186,9 @@ class MainView(ui.View):
     self.shader_scene.did_change_size()
 
   def reload_btn(self):
-    self.close_btn = self.create_btn('iob:ios7_refresh_outline_32')
-    self.close_btn.action = (lambda sender: self.reload_src())
-    self.right_button_items = [self.close_btn]
-    #self.add_subview(self.close_btn)
+    self.reload_icon = self.create_btn('iob:ios7_refresh_outline_32')
+    self.reload_icon.action = (lambda sender: self.reload_src())
+    self.right_button_items = [self.reload_icon]
 
   def create_btn(self, icon):
     btn_icon = ui.Image.named(icon)
@@ -206,7 +202,3 @@ if __name__ == '__main__':
   view = MainView()
   view.present(style='fullscreen', orientations=['portrait'])
   #view.present()
-  #pdbg.state(view.cev.editor_view.textView().textStorage())
-
-
-
