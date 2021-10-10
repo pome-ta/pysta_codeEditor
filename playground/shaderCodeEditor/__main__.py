@@ -1,6 +1,6 @@
 import ui
 import scene
-from objc_util import ObjCClass, on_main_thread, ObjCInstance
+from objc_util import ObjCClass, on_main_thread, ObjCInstance, UIEdgeInsets
 
 import pdbg
 
@@ -17,7 +17,6 @@ void main(){
   //float pi = acos(-1.0);
   float t = u_time;
   vec2 uv = v_tex_coord;
-  
   
   vec3 out_color = vec3(uv.x, uv.y, abs(sin(t)));
   gl_FragColor = vec4(out_color, 1.0);
@@ -67,7 +66,7 @@ class CodeEditorView:
     theme_dict = PA2UITheme.sharedTheme().themeDict().mutableCopy()
     #theme_dict.autorelease()
     theme_dict['font-family'] = 'Source Code Pro'
-    theme_dict['font-size'] = 14
+    theme_dict['font-size'] = 11
     theme = OMSyntaxHighlighterTheme.alloc().initWithDictionary_(theme_dict)
     
     #f = CGRect(CGPoint(0, 0), CGSize(100.0, 100.0))
@@ -78,7 +77,8 @@ class CodeEditorView:
     flex_width, flex_height = (1 << 1), (1 << 4)
     self.editor_view.setAutoresizingMask_(flex_width | flex_height)
     #margins = UIEdgeInsets(16, 10, 16, 10)
-    #self.editor_view.setMarginsForPortrait_landscape_(margins, margins)
+    margins = UIEdgeInsets(4, 8, 4, 8)
+    self.editor_view.setMarginsForPortrait_landscape_(margins, margins)
     if ext_kb:
       kb_types = {
         'python': 'KeyboardAccessoryTypePythonCompact',
@@ -92,8 +92,11 @@ class CodeEditorView:
         accessory_view = OMKeyboardAccessoryView.alloc().initWithType_dark_(kb_type, False)#.autorelease()
         self.editor_view.setKeyboardAccessoryView_(accessory_view)
     
-    self.editor_view.setOpaque_(0)
+    #self.editor_view.setOpaque_(0)
     self.editor_view.setBackgroundColor_((0.0, 0.0, 0.0, 0.0))
+    
+    
+    
   
   
   @property
@@ -110,6 +113,13 @@ class CodeEditorView:
       raise TypeError('expected string/unicode')
     text_view = self.editor_view.textView()
     text_view.setText_(new_text)
+    text_view.setOpaque_(0)
+    col = ObjCClass('UIColor').colorWithRed_green_blue_alpha_(0.0, 0.0, 0.0, 0.5)
+    text_view.setBackgroundColor_(col)
+    #pdbg.state(col)
+    #pdbg.state(text_view)
+    #UIColor
+    #setBackgroundColor_
     
 
   #@on_main_thread
@@ -189,8 +199,6 @@ class MainView(ui.View):
     return ui.ButtonItem(image=btn_icon)
     
   def reload_src(self):
-    #print('hofe')
-    #print(self.cev.text)
     self.shader_scene.shdr.shader = scene.Shader(self.cev.text)
     
 
@@ -198,4 +206,7 @@ if __name__ == '__main__':
   view = MainView()
   view.present(style='fullscreen', orientations=['portrait'])
   #view.present()
+  #pdbg.state(view.cev.editor_view.textView().textStorage())
+
+
 
