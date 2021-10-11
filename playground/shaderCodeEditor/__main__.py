@@ -1,11 +1,9 @@
 import ui
 import scene
-from objc_util import ObjCClass, on_main_thread, ObjCInstance, UIEdgeInsets
+import editor
+from objc_util import ObjCClass, on_main_thread, ObjCInstance
 
 import pdbg
-
-
-
 
 src = '''precision highp float;
 
@@ -24,25 +22,29 @@ void main(){
 }
 '''
 
+
 class ShaderScene(scene.Scene):
   def setup(self):
     self.shdr = scene.SpriteNode(parent=self)
-    _x = self.size.x
-    #_y = self.size.x
-    self.shdr.size = (_x, _x)
+    _x, _y = self.get_canvas_size()
+    self.shdr.size = (_x, _y)
     self.shdr.shader = scene.Shader(src)
-    
+
     self.shdr.shader.set_uniform('u_resolution', (_x, _x))
     # todo: Initial position before touching
     self.shdr.shader.set_uniform('u_offset', (0.5, 0.5))
-    
+
   def did_change_size(self):
+    _x, _y = self.get_canvas_size()
+    self.shdr.size = (_x, _y)
+    sx, sy = self.shdr.size / 2
+    self.shdr.position = (sx, sy)
+    
+  def get_canvas_size(self):
     _x = self.size.x
-    self.shdr.size = (_x, _x)
-    sx = _x / 2
-    self.shdr.position = (sx, self.size.y - sx)
-    
-    
+    _y = self.size.y
+    return _x, _y
+
 
 class CodeEditorView:
   @on_main_thread
@@ -56,22 +58,25 @@ class CodeEditorView:
     }
     if mode not in valid_modes:
       raise ValueError('invalid syntax mode')
-    
+
     OMTextEditorView = ObjCClass('OMTextEditorView')
-    
+
     OMSyntaxHighlighterTheme = ObjCClass('OMSyntaxHighlighterTheme')
     SyntaxHighlighter = ObjCClass(valid_modes[mode])
-    
+
     PA2UITheme = ObjCClass('PA2UITheme')
+
     theme_dict = PA2UITheme.sharedTheme().themeDict().mutableCopy()
-    #theme_dict.autorelease()
+
     theme_dict['font-family'] = 'Source Code Pro'
-    theme_dict['font-size'] = 11
+    theme_dict['font-size'] = 13
+    theme_dict['background'] = '00000000'
+
     theme = OMSyntaxHighlighterTheme.alloc().initWithDictionary_(theme_dict)
-    
-    #f = CGRect(CGPoint(0, 0), CGSize(100.0, 100.0))
+
     f = ((0.0, 0.0), (100.0, 100.0))
-    self.editor_view = OMTextEditorView.alloc().initWithFrame_syntaxHighlighterClass_theme_(f, SyntaxHighlighter, theme)
+    self.editor_view = OMTextEditorView.alloc()
+    self.editor_view.initWithFrame_syntaxHighlighterClass_theme_(f, SyntaxHighlighter, theme)
     self.editor_view.textView().setAutocapitalizationType_(0)
     self.editor_view.textView().setAutocorrectionType_(1)
     flex_width, flex_height = (1 << 1), (1 << 4)
@@ -89,13 +94,12 @@ class CodeEditorView:
       kb_type = kb_types.get(mode)
       if kb_type:
         OMKeyboardAccessoryView = ObjCClass('OMKeyboardAccessoryView')
-        accessory_view = OMKeyboardAccessoryView.alloc().initWithType_dark_(kb_type, False)#.autorelease()
+        accessory_view = OMKeyboardAccessoryView.alloc()
+        accessory_view.initWithType_dark_(kb_type, False)  #.autorelease()
         self.editor_view.setKeyboardAccessoryView_(accessory_view)
-    
-    #self.editor_view.setOpaque_(0)
-    self.editor_view.setBackgroundColor_((0.0, 0.0, 0.0, 0.0))
-    
-  
+        self.editor_view.setKeyboardAppearance_(1)
+        #pdbg.state(self.editor_view)
+
   @property
   #@on_main_thread
   def text(self):
@@ -110,16 +114,6 @@ class CodeEditorView:
       raise TypeError('expected string/unicode')
     text_view = self.editor_view.textView()
     text_view.setText_(new_text)
-    #text_view.setOpaque_(0)
-    col = ObjCClass('UIColor').colorWithRed_green_blue_alpha_(0.0, 0.0, 0.0, 0.1)
-    
-    subviews = text_view.subviews()
-    for subs in subviews:
-      if 'OMTextContentView' in str(subs):
-        frames = subs.subviews()
-        for frame in frames:
-          frame.setBackgroundColor_(col)
-    
 
   #@on_main_thread
   def insert_text(self, text):
@@ -161,22 +155,23 @@ class CodeEditorView:
     text_view.resignFirstResponder()
     print('end_editing')
 
-  
+
 class MainView(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
     #self.bg_color = 'maroon'
+    self.bg_color = 'slategray'
     self.shader_scene = ShaderScene()
     self.ui_scene = scene.SceneView()
     self.ui_scene.shows_fps = True
     self.ui_scene.frame_interval = 2  # 30fps
     self.ui_scene.scene = self.shader_scene
-    
+
     self.add_subview(self.ui_scene)
-    
+
     self.cev = CodeEditorView()
     self.cev.text = src
-    
+
     self.objc_instance.addSubview_(self.cev.editor_view)
     self.reload_btn()
 
@@ -193,12 +188,14 @@ class MainView(ui.View):
   def create_btn(self, icon):
     btn_icon = ui.Image.named(icon)
     return ui.ButtonItem(image=btn_icon)
-    
+
   def reload_src(self):
     self.shader_scene.shdr.shader = scene.Shader(self.cev.text)
-    
+
 
 if __name__ == '__main__':
   view = MainView()
-  view.present(style='fullscreen', orientations=['portrait'])
+  editor.present_themed(view, theme_name='Oceanic',style='fullscreen', orientations=['portrait'])
+  #view.present(style='fullscreen', orientations=['portrait'])
   #view.present()
+
